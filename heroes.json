@@ -1,0 +1,35 @@
+{
+  "heroes": [
+    {
+      "id": "1",
+      "name": "Первый герой",
+      "description": "Первый герой в рейтинге!",
+      "element": "fire"
+    },
+    {
+      "id": "2",
+      "name": "Неизвестный герой",
+      "description": "Скрывающийся в тени",
+      "element": "wind"
+    },
+    {
+      "id": "5d9c6e9c-cf9c-4544-82df-1f275cffd8fc",
+      "name": "Saparbayoff",
+      "description": "erferf",
+      "element": "wind"
+    },
+    {
+      "id": "e25f34f1-c51d-4d9d-bfd4-47a3839959bb",
+      "name": "Saparbayoff",
+      "description": "wdwdq",
+      "element": "water"
+    }
+  ],
+  "filters": [
+    "all",
+    "fire",
+    "water",
+    "wind",
+    "earth"
+  ]
+}
