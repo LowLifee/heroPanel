@@ -13,23 +13,43 @@
       "element": "wind"
     },
     {
-      "id": "5d9c6e9c-cf9c-4544-82df-1f275cffd8fc",
-      "name": "Saparbayoff",
-      "description": "erferf",
-      "element": "wind"
+      "id": "3",
+      "name": "Морской герой",
+      "description": "Как аквамен, но не из DC",
+      "element": "water"
     },
     {
-      "id": "e25f34f1-c51d-4d9d-bfd4-47a3839959bb",
-      "name": "Saparbayoff",
-      "description": "wdwdq",
-      "element": "water"
+      "id": "a8aa4d23-3133-48fa-a91e-e0759fdeff90",
+      "name": "wdawd",
+      "description": "wdawdawd",
+      "element": "wind"
     }
   ],
   "filters": [
-    "all",
-    "fire",
-    "water",
-    "wind",
-    "earth"
+    {
+      "name": "all",
+      "label": "Все",
+      "className": "btn-outline-dark"
+    },
+    {
+      "name": "fire",
+      "label": "Огонь",
+      "className": "btn-danger"
+    },
+    {
+      "name": "water",
+      "label": "Вода",
+      "className": "btn-primary"
+    },
+    {
+      "name": "wind",
+      "label": "Ветер",
+      "className": "btn-success"
+    },
+    {
+      "name": "earth",
+      "label": "Земля",
+      "className": "btn-secondary"
+    }
   ]
 }

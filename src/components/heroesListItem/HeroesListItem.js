@@ -1,29 +1,5 @@
-import { useCallback } from "react";
-import { useHttp } from '../../hooks/http.hook'
-import { useDispatch, useSelector } from 'react-redux';
-import { heroesFetching, heroesFetched, heroesFetchingError } from '../../actions';
 
-const HeroesListItem = ({ name, description, element, id }) => {
-
-
-
-    const { request } = useHttp();
-    const dispatch = useDispatch();
-
-    const onDelete = useCallback(async (heroId) => {
-
-        dispatch(heroesFetching());
-
-        await request(`http://localhost:3001/heroes/${heroId}`, "DELETE")
-            .then(res => console.log('deleted'))
-            .catch(() => dispatch(heroesFetchingError()));
-
-        await request("http://localhost:3001/heroes")
-            .then(res => dispatch(heroesFetched(res)))
-            .catch(() => dispatch(heroesFetchingError()));
-
-
-    }, [])
+const HeroesListItem = ({ name, description, element, onDelete }) => {
 
     let elementClassName;
 
@@ -56,13 +32,9 @@ const HeroesListItem = ({ name, description, element, id }) => {
                 <h3 className="card-title">{name}</h3>
                 <p className="card-text">{description}</p>
             </div>
-            <span className="position-absolute top-0 start-100 translate-middle badge border rounded-pill bg-light">
-                <button
-                    type="button"
-                    className="btn-close btn-close"
-                    aria-label="Close"
-                    onClick={() => onDelete(id)}
-                ></button>
+            <span onClick={onDelete}
+                className="position-absolute top-0 start-100 translate-middle badge border rounded-pill bg-light">
+                <button type="button" className="btn-close btn-close" aria-label="Close"></button>
             </span>
         </li>
     )

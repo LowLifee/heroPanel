@@ -1,79 +1,69 @@
-import classNames from 'classnames';
-import { useCallback, useEffect, useState } from 'react';
+
+import { useHttp } from '../../hooks/http.hook';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { heroesFetching, heroesFiltered } from '../../actions';
+import classNames from 'classnames';
+
+import { filtersFetching, filtersFetched, filtersFetchingError, activeFilterChanged } from '../../actions';
+import Spinner from '../spinner/Spinner';
+
 // Задача для этого компонента:
 // Фильтры должны формироваться на основании загруженных данных
 // Фильтры должны отображать только нужных героев при выборе
 // Активный фильтр имеет класс active
-// Изменять json-файл для удобства МОЖНО!
-// Представьте, что вы попросили бэкенд-разработчика об этом
 
 const HeroesFilters = () => {
 
-    const [selected, setSelected] = useState('all');
-
-    const { heroes } = useSelector(state => state);
-
+    const { filters, filtersLoadingStatus, activeFilter } = useSelector(state => state.filters);
     const dispatch = useDispatch();
+    const { request } = useHttp();
 
+    // Запрос на сервер для получения фильтров и последовательной смены состояния
     useEffect(() => {
-        dispatch(heroesFetching())
-        const filtered = heroes.filter(heroes => {
-            if (selected === 'all') {
-                return true;
-            } else {
-                return heroes.element === selected
-            }
-        });
-        dispatch(heroesFiltered(filtered))
-    }, [selected, heroes])
+        dispatch(filtersFetching());
+        request("http://localhost:3001/filters")
+            .then(data => dispatch(filtersFetched(data)))
+            .catch(() => dispatch(filtersFetchingError()))
 
-    const onSelectFilter = useCallback((e) => {
-        setSelected(e.target.getAttribute('data-filter'));
+        // eslint-disable-next-line
+    }, []);
 
-    }, [selected]);
+    if (filtersLoadingStatus === "loading") {
+        return <Spinner />;
+    } else if (filtersLoadingStatus === "error") {
+        return <h5 className="text-center mt-5">Ошибка загрузки</h5>
+    }
 
-    const all = classNames({
-        'btn': true,
-        'btn-outline-dark': true,
-        'active': selected === 'all'
-    });
+    const renderFilters = (arr) => {
+        if (arr.length === 0) {
+            return <h5 className="text-center mt-5">Фильтры не найдены</h5>
+        }
 
-    const fire = classNames({
-        'btn': true,
-        'btn-danger': true,
-        'active': selected === 'fire'
-    });
+        // Данные в json-файле я расширил классами и текстом
+        return arr.map(({ name, className, label }) => {
 
-    const water = classNames({
-        'btn': true,
-        'btn-primary': true,
-        'active': selected === 'water'
-    });
+            // Используем библиотеку classnames и формируем классы динамически
+            const btnClass = classNames('btn', className, {
+                'active': name === activeFilter
+            });
 
-    const wind = classNames({
-        'btn': true,
-        'btn-success': true,
-        'active': selected === 'wind'
-    });
+            return <button
+                key={name}
+                id={name}
+                className={btnClass}
+                onClick={() => dispatch(activeFilterChanged(name))}
+            >{label}</button>
+        })
+    }
 
-    const earth = classNames({
-        'btn': true,
-        'btn-secondary': true,
-        'active': selected === 'earth'
-    });
+    const elements = renderFilters(filters);
 
     return (
         <div className="card shadow-lg mt-4">
             <div className="card-body">
                 <p className="card-text">Отфильтруйте героев по элементам</p>
                 <div className="btn-group">
-                    <button onClick={(e) => onSelectFilter(e)} data-filter="all" className={all}>Все</button>
-                    <button onClick={(e) => onSelectFilter(e)} data-filter="fire" className={fire}>Огонь</button>
-                    <button onClick={(e) => onSelectFilter(e)} data-filter="water" className={water}>Вода</button>
-                    <button onClick={(e) => onSelectFilter(e)} data-filter="wind" className={wind}>Ветер</button>
-                    <button onClick={(e) => onSelectFilter(e)} data-filter="earth" className={earth}>Земля</button>
+                    {elements}
                 </div>
             </div>
         </div>
@@ -81,10 +71,3 @@ const HeroesFilters = () => {
 }
 
 export default HeroesFilters;
-
-
-{/*<button data-filter="all" className="btn btn-outline-dark active">Все</button>
-<button data-filter="fire" className="btn btn-danger">Огонь</button>
-<button data-filter="water" className="btn btn-primary">Вода</button>
-<button data-filter="wind" className="btn btn-success">Ветер</button>
-<button data-filter="earth" className="btn btn-secondary">Земля</button>*/}

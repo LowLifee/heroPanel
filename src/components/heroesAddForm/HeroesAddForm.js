@@ -1,8 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import { useHttp } from "../../hooks/http.hook";
-import { useDispatch } from 'react-redux';
-import { heroesFetching, heroesFetched, heroesFetchingError } from '../../actions';
 
 // Задача для этого компонента:
 // Реализовать создание нового героя с введенными данными. Он должен попадать
@@ -14,100 +9,69 @@ import { heroesFetching, heroesFetched, heroesFetchingError } from '../../action
 // Элементы <option></option> желательно сформировать на базе
 // данных из фильтров
 
+import { useHttp } from '../../hooks/http.hook';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
+
+import { heroCreated } from '../../actions';
+
 const HeroesAddForm = () => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [element, setElement] = useState('');
-    const [option, setOption] = useState([]);
+    // Состояния для контроля формы
+    const [heroName, setHeroName] = useState('');
+    const [heroDescr, setHeroDescr] = useState('');
+    const [heroElement, setHeroElement] = useState('');
 
+    const { filters, filtersLoadingStatus } = useSelector(state => state.filters);
     const dispatch = useDispatch();
-
     const { request } = useHttp();
 
-    useEffect(() => {
-        request("http://localhost:3001/filters")
-            .then(res => setOption(res))
-            .catch(() => console.log('error rendering option'));
-    }, [])
-
-    const onChange = useCallback((e) => {
-        const target = e.target;
-        switch (target.getAttribute('data-form')) {
-            case 'name':
-                return setName(target.value);
-            case 'derection':
-                return setDescription(target.value);
-            case 'element':
-                return setElement(target.value);
-            default: throw new Error('unexpected value');
-        }
-    }, [name, description, element]);
-
-    const onSubmit = useCallback((e) => {
+    const onSubmitHandler = (e) => {
         e.preventDefault();
-        dispatch(heroesFetching());
+        // Можно сделать и одинаковые названия состояний,
+        // хотел показать вам чуть нагляднее
+        // Генерация id через библиотеку
         const newHero = {
-            name,
-            description,
-            element,
-            id: uuidv4()
-        };
+            id: uuidv4(),
+            name: heroName,
+            description: heroDescr,
+            element: heroElement
+        }
 
+        // Отправляем данные на сервер в формате JSON
+        // ТОЛЬКО если запрос успешен - отправляем персонажа в store
         request("http://localhost:3001/heroes", "POST", JSON.stringify(newHero))
-            .then(() => console.log('sent'))
-            .catch(() => dispatch(heroesFetchingError()));
+            .then(res => console.log(res, 'Отправка успешна'))
+            .then(dispatch(heroCreated(newHero)))
+            .catch(err => console.log(err));
 
-        request("http://localhost:3001/heroes")
-            .then(res => dispatch(heroesFetched(res)))
-            .catch(() => dispatch(heroesFetchingError()));
+        // Очищаем форму после отправки
+        setHeroName('');
+        setHeroDescr('');
+        setHeroElement('');
+    }
 
-        setName('');
-        setDescription('');
-        setElement('')
+    const renderFilters = (filters, status) => {
+        if (status === "loading") {
+            return <option>Загрузка элементов</option>
+        } else if (status === "error") {
+            return <option>Ошибка загрузки</option>
+        }
 
-    }, [name, description, element]);
+        // Если фильтры есть, то рендерим их
+        if (filters && filters.length > 0) {
+            return filters.map(({ name, label }) => {
+                // Один из фильтров нам тут не нужен
+                // eslint-disable-next-line
+                if (name === 'all') return;
 
-    const renderOption = useCallback((options) => {
-
-        const element = options.map((item, i) => {
-            let text = '';
-
-            switch (item) {
-                case 'fire':
-                    text = 'Огонь';
-                    break;
-                case 'water':
-                    text = 'Вода';
-                    break;
-                case 'wind':
-                    text = 'Ветер';
-                    break;
-                case 'earth':
-                    text = 'Земля';
-                    break;
-                default:
-                    text = null;
-            }
-
-            switch (item) {
-                case 'fire':
-                    return <option key={i} value={item}>{text}</option>
-                case 'water':
-                    return <option key={i} value={item}>{text}</option>
-                case 'wind':
-                    return <option key={i} value={item}>{text}</option>
-                case 'earth':
-                    return <option key={i} value={item}>{text}</option>
-                default:
-                    text = null;
-            }
-        })
-
-        return element;
-    }, [])
+                return <option key={name} value={name}>{label}</option>
+            })
+        }
+    }
 
     return (
-        <form className="border p-4 shadow-lg rounded" onSubmit={(e) => onSubmit(e)}>
+        <form className="border p-4 shadow-lg rounded" onSubmit={onSubmitHandler}>
             <div className="mb-3">
                 <label htmlFor="name" className="form-label fs-4">Имя нового героя</label>
                 <input
@@ -117,9 +81,8 @@ const HeroesAddForm = () => {
                     className="form-control"
                     id="name"
                     placeholder="Как меня зовут?"
-                    data-form='name'
-                    value={name}
-                    onChange={(e) => onChange(e)} />
+                    value={heroName}
+                    onChange={(e) => setHeroName(e.target.value)} />
             </div>
 
             <div className="mb-3">
@@ -131,9 +94,8 @@ const HeroesAddForm = () => {
                     id="text"
                     placeholder="Что я умею?"
                     style={{ "height": '130px' }}
-                    data-form='derection'
-                    value={description}
-                    onChange={(e) => onChange(e)} />
+                    value={heroDescr}
+                    onChange={(e) => setHeroDescr(e.target.value)} />
             </div>
 
             <div className="mb-3">
@@ -143,11 +105,10 @@ const HeroesAddForm = () => {
                     className="form-select"
                     id="element"
                     name="element"
-                    data-form='element'
-                    onChange={(e) => onChange(e)}
-                    value={element}>
-                    <option >Я владею элементом...</option>
-                    {renderOption(option)}
+                    value={heroElement}
+                    onChange={(e) => setHeroElement(e.target.value)}>
+                    <option value="">Я владею элементом...</option>
+                    {renderFilters(filters, filtersLoadingStatus)}
                 </select>
             </div>
 
