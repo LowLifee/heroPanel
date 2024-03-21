@@ -1,4 +1,5 @@
 import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
+import { thunk } from 'redux-thunk'
 import filters from '../reducers/filters';
 import heroes from '../reducers/heroes';
 
@@ -13,18 +14,10 @@ const stringMiddleware = (store) => (next) => (action) => {
    return next(action);
 }
 
-
-// можно и так:
-
-//const stringMiddleware = ({dispatch, }) => (next) => (action) => {
-
-//} // в первом аргументе было еще что-то рядом с диспатчом
-
-
 const store = createStore(
    combineReducers({ filters, heroes }),
    compose(
-      applyMiddleware(stringMiddleware),
+      applyMiddleware(thunk, stringMiddleware),
       window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
 
 export default store;
