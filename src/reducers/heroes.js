@@ -1,46 +1,54 @@
+import { createReducer } from "@reduxjs/toolkit"
+import {
+   heroesFetching,
+   heroesFetched,
+   heroesFetchingError,
+   heroCreated,
+   heroDeleted
+} from '../actions';
+
 const initialState = {
    heroes: [],
    heroesLoadingStatus: 'idle',
 }
 
-const heroes = (state = initialState, action) => {
-   switch (action.type) {
-      case 'HEROES_FETCHING':
-         return {
-            ...state,
-            heroesLoadingStatus: 'loading'
-         }
-      case 'HEROES_FETCHED':
-         return {
-            ...state,
-            heroes: action.payload,
-            // ЭТО МОЖНО СДЕЛАТЬ И ПО ДРУГОМУ
-            // Я специально показываю вариант с действиями тут, но более правильный вариант
-            // будет показан в следующем уроке
-            filteredHeroes: state.activeFilter === 'all' ?
-               action.payload :
-               action.payload.filter(item => item.element === state.activeFilter),
-            heroesLoadingStatus: 'idle'
-         }
-      case 'HEROES_FETCHING_ERROR':
-         return {
-            ...state,
-            heroesLoadingStatus: 'error'
-         }
+//укороченный вариант. работает только чистым жс. с тайпскрипт не работает.
 
-      case 'HERO_CREATED':
-         return {
-            ...state,
-            heroes: [...state.heroes, action.payload]
+//const heroes = createReducer(initialState, {
+//   [heroesFetching]: state => { state.heroesLoadingStatus = 'loading'; },
+//   [heroDeleted]: (state, action) => {
+//      state.heroesLoadingStatus = 'idle';
+//      state.heroes = action.payload;
+//   },
+//   [heroesFetchingError]: state => { state.heroesLoadingStatus = 'error' },
+//   [heroCreated]: (state, action) => {
+//      state.heroes.push(action.payload);
+//   },
+//   [heroDeleted]: (state, action) => {
+//      state.heroes = state.heroes.filter(item => item.id !== action.payload);
+//   }
+//})
 
-         }
-      case 'HERO_DELETED':
-         return {
-            ...state,
-            heroes: state.heroes.filter(item => item.id !== action.payload)
-         }
-      default: return state
-   }
-}
+//креаредюсер работает только с креатеакшн и включает библиотеку иннерЖс.
+
+const heroes = createReducer(initialState, builder => {
+   builder.addCase(heroesFetching, state => {
+      state.heroesLoadingStatus = 'loading';
+   })
+      .addCase(heroesFetched, (state, action) => {
+         state.heroesLoadingStatus = 'idle';
+         state.heroes = action.payload;
+      })
+      .addCase(heroesFetchingError, state => {
+         state.heroesLoadingStatus = 'error';
+      })
+      .addCase(heroCreated, (state, action) => {
+         state.heroes.push(action.payload);
+      })
+      .addCase(heroDeleted, (state, action) => {
+         state.heroes = state.heroes.filter(item => item.id !== action.payload);
+      })
+});
+
 
 export default heroes;
