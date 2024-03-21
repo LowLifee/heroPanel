@@ -1,30 +1,30 @@
-import { createStore, combineReducers, compose } from 'redux';
+import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import filters from '../reducers/filters';
 import heroes from '../reducers/heroes';
 
 
-const enhancer = (createStore) => (...args) => {
-   const store = createStore(...args);
-
-   const oldDispatch = store.dispatch;
-
-   store.dispatch = (action) => {
-      if (typeof (action) === 'string') {
-         return oldDispatch({
-            type: action
-         })
-      }
-
-      return oldDispatch(action);
+const stringMiddleware = (store) => (next) => (action) => {
+   if (typeof (action) === 'string') {
+      return next({
+         type: action
+      })
    }
 
-   return store;
+   return next(action);
 }
+
+
+// можно и так:
+
+//const stringMiddleware = ({dispatch, }) => (next) => (action) => {
+
+//} // в первом аргументе было еще что-то рядом с диспатчом
+
 
 const store = createStore(
    combineReducers({ filters, heroes }),
    compose(
-      enhancer,
+      applyMiddleware(stringMiddleware),
       window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
 
 export default store;
