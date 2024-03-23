@@ -26,7 +26,9 @@ const initialState = {
 //   },
 //   [heroDeleted]: (state, action) => {
 //      state.heroes = state.heroes.filter(item => item.id !== action.payload);
-//   }
+//   },
+//[],
+//state => state
 //})
 
 //креаредюсер работает только с креатеакшн и включает библиотеку иннерЖс.

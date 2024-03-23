@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 
-import { activeFilterChanged, fetchFiltered } from '../../actions';
+import { fetchFiltered } from '../../actions/index';
+import { activeFilterChanged } from '../heroesFilters/heroesFilterSlice';
 import Spinner from '../spinner/Spinner';
 
 // Задача для этого компонента:
