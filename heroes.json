@@ -19,10 +19,16 @@
       "element": "water"
     },
     {
-      "id": "a8aa4d23-3133-48fa-a91e-e0759fdeff90",
+      "id": "d2d3c025-c5c2-43fb-81d1-7641c51a0725",
+      "name": "Saparbayoff",
+      "description": "wdawd",
+      "element": "water"
+    },
+    {
+      "id": "cbe0112e-7e77-400e-8973-504597bf35d6",
       "name": "wdawd",
-      "description": "wdawdawd",
-      "element": "wind"
+      "description": "awdawd",
+      "element": "earth"
     }
   ],
   "filters": [

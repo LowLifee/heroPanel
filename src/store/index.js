@@ -15,8 +15,12 @@ const stringMiddleware = (store) => (next) => (action) => {
 }
 
 const store = configureStore({
-   reducer: { filters, heroes },
-   middleware: getDefaultMiddleWare => getDefaultMiddleWare().concat(stringMiddleware),
+   reducer: {
+      filters,
+      heroes,
+      [apiSlice.reducerPath]: apiSlice.reducer
+   },
+   middleware: getDefaultMiddleWare => getDefaultMiddleWare().concat(stringMiddleware, apiSlice.middleware),
    devTools: process.env.NODE_ENV !== 'production'
 })
 

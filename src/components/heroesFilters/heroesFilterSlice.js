@@ -4,12 +4,6 @@ import { useHttp } from "../../hooks/http.hook";
 
 const filtersAdapter = createEntityAdapter();
 
-//const initialState = {
-//   filters: [],
-//   filtersLoadingStatus: 'idle',
-//   activeFilter: 'all'
-//}
-
 const initialState = filtersAdapter.getInitialState({
    activeFilter: 'all',
    filtersLoadingStatus: 'idle'
@@ -21,7 +15,6 @@ export const fetchFiltered = createAsyncThunk(
       const { request } = useHttp();
       return await request("http://localhost:3001/filters");
    }
-
 )
 
 const heroesFilterSlice = createSlice({
@@ -35,7 +28,6 @@ const heroesFilterSlice = createSlice({
       builder.addCase(fetchFiltered.pending, state => { state.filtersLoadingStatus = 'loading'; })
          .addCase(fetchFiltered.fulfilled, (state, action) => {
             state.filtersLoadingStatus = 'idle';
-            //state.filters = action.payload;
             filtersAdapter.setAll(state, action.payload);
          })
          .addCase(fetchFiltered.rejected, state => { state.filtersLoadingStatus = 'error' })
