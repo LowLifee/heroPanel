@@ -2,36 +2,32 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
 import { useHttp } from "../../hooks/http.hook";
 
+const filtersAdapter = createEntityAdapter();
 
+//const initialState = {
+//   filters: [],
+//   filtersLoadingStatus: 'idle',
+//   activeFilter: 'all'
+//}
 
-const initialState = {
-   filters: [],
-   filtersLoadingStatus: 'idle',
-   activeFilter: 'all'
-}
+const initialState = filtersAdapter.getInitialState({
+   activeFilter: 'all',
+   filtersLoadingStatus: 'idle'
+})
 
 export const fetchFiltered = createAsyncThunk(
    'heroesFilterSlice/fetchFiltered',
    async () => {
       const { request } = useHttp();
-      request("http://localhost:3001/filters")
+      return await request("http://localhost:3001/filters");
    }
 
 )
-
-
-
-
 
 const heroesFilterSlice = createSlice({
    name: 'filter',
    initialState,
    reducers: {
-      filtersFetching: state => { state.filtersLoadingStatus = 'loading'; },
-      filtersFetched: (state, action) => {
-         state.filtersLoadingStatus = 'idle';
-         state.filters = action.payload;
-      },
       filtersFetchingError: state => { state.filtersLoadingStatus = 'error' },
       activeFilterChanged: (state, action) => { state.activeFilter = action.payload; }
    },
@@ -39,13 +35,17 @@ const heroesFilterSlice = createSlice({
       builder.addCase(fetchFiltered.pending, state => { state.filtersLoadingStatus = 'loading'; })
          .addCase(fetchFiltered.fulfilled, (state, action) => {
             state.filtersLoadingStatus = 'idle';
-            state.filters = action.payload;
+            //state.filters = action.payload;
+            filtersAdapter.setAll(state, action.payload);
          })
-         .addCase(fetchFiltered.rejected,)
+         .addCase(fetchFiltered.rejected, state => { state.filtersLoadingStatus = 'error' })
+         .addDefaultCase(() => { })
    }
 })
 
 const { actions, reducer } = heroesFilterSlice;
+
+export const { selectAll } = filtersAdapter.getSelectors(state => state.filters);
 
 export default reducer;
 
